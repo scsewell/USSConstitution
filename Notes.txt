@@ -1,0 +1,4 @@
+Break down into mesh peices with similar location/bounds.
+Bake AO for hull and decks.
+
+gun deck -> main deck / bulwarks -> boats -> bowsprit -> masts -> stays -> sails -> running rigging...
