@@ -1,3 +1,9 @@
+Carronade
+Masts base/tie-offs
+raised bow rail section
+Finish cabins (make laterns)
+
+
 gun deck -> main deck / bulwarks -> boats -> bowsprit -> masts -> stays -> sails -> running rigging...
 Break down into mesh peices with similar location/bounds.
 Bake AO for hull, decks, masts etc.
