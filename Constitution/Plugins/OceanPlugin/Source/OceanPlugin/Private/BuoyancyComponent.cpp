@@ -3,27 +3,31 @@
 * 
 * Created by: TK-Master
 * Project name: OceanProject
-* Unreal Engine version: 4.12.2
+* Unreal Engine version: 4.18.3
 * Created on: 2015/04/26
 *
-* Last Edited on: 2016/06/10
-* Last Edited by: DotCam
+* Last Edited on: 2018/03/15
+* Last Edited by: Felipe "Zoc" Silveira
 * 
 * -------------------------------------------------
 * For parts referencing UE4 code, the following copyright applies:
-* Copyright 1998-2015 Epic Games, Inc. All Rights Reserved.
+* Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 *
 * Feel free to use this software in any commercial/free game.
 * Selling this as a plugin/item, in whole or part, is not allowed.
 * See "OceanProject\License.md" for full licensing details.
 * =================================================*/
 
-#include "OceanPluginPrivatePCH.h"
 #include "BuoyancyComponent.h"
-#include "Runtime/Engine/Classes/PhysicsEngine/ConstraintInstance.h"
+#include "DrawDebugHelpers.h"
+#include "EngineUtils.h"
+#include "Components/PrimitiveComponent.h"
+#include "PhysicsEngine/PhysicsConstraintComponent.h"
+#include "PhysicsEngine/ConstraintInstance.h"
 
-UBuoyancyComponent::UBuoyancyComponent(const class FObjectInitializer& PCIP)
-	: Super(PCIP) 
+
+UBuoyancyComponent::UBuoyancyComponent(const class FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	//Defaults
 	MeshDensity = 600.0f;
@@ -45,10 +49,13 @@ void UBuoyancyComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
 
-	// If no OceanManager is defined auto-detect
+	//Store the world ref.
+	World = GetWorld();
+
+	// If no OceanManager is defined, auto-detect
 	if (!OceanManager)
 	{
-		for (TActorIterator<AOceanManager> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+		for (TActorIterator<AOceanManager> ActorItr(World); ActorItr; ++ActorItr)
 		{
 			OceanManager = Cast<AOceanManager>(*ActorItr);
 			break;
@@ -64,6 +71,7 @@ void UBuoyancyComponent::InitializeComponent()
 
 	if (UpdatedPrimitive->IsValidLowLevel())
 	{
+		//Store the initial damping values.
 		_baseLinearDamping = UpdatedPrimitive->GetLinearDamping();
 		_baseAngularDamping = UpdatedPrimitive->GetAngularDamping();
 	}
@@ -110,7 +118,7 @@ void UBuoyancyComponent::TickComponent(float DeltaTime, enum ELevelTick TickType
 			float DepthMultiplier = (waveHeight - (worldTestPoint.Z + _SignedRadius)) / (TestPointRadius * 2);
 			DepthMultiplier = FMath::Clamp(DepthMultiplier, 0.f, 1.f);
 
-			//If we have a point density override, use the overriden value insted of MeshDensity
+			//If we have a point density override, use the overridden value instead of MeshDensity
 			float PointDensity = PointDensityOverride.IsValidIndex(pointIndex) ? PointDensityOverride[pointIndex] : MeshDensity;
 
 			/**
@@ -138,7 +146,7 @@ void UBuoyancyComponent::TickComponent(float DeltaTime, enum ELevelTick TickType
 		{
 			FColor DebugColor = FLinearColor(0.8, 0.7, 0.2, 0.8).ToRGBE();
 			if (isUnderwater) { DebugColor = FLinearColor(0, 0.2, 0.7, 0.8).ToRGBE(); } //Blue color underwater, yellow out of watter
-			DrawDebugSphere(GetWorld(), worldTestPoint, TestPointRadius, 8, DebugColor);
+			DrawDebugSphere(World, worldTestPoint, TestPointRadius, 8, DebugColor);
 		}
 	}
 
@@ -157,11 +165,14 @@ void UBuoyancyComponent::TickComponent(float DeltaTime, enum ELevelTick TickType
 
 FVector UBuoyancyComponent::GetVelocityAtPoint(UPrimitiveComponent* Target, FVector Point, FName BoneName)
 {
+	if (!Target) return FVector::ZeroVector;
+
 	FBodyInstance* BI = Target->GetBodyInstance(BoneName);
-	if (BI != NULL && BI->IsValidBodyInstance())
+	if (BI->IsValidBodyInstance())
 	{
 		return BI->GetUnrealWorldVelocityAtPoint(Point);
 	}
+
 	return FVector::ZeroVector;
 }
 
@@ -181,7 +192,7 @@ void UBuoyancyComponent::ApplyUprightConstraint()
 
 		//ConstraintInstance.LinearLimitSize = 0;
 
-		//ConstraintInstance.AngularSwing1Motion = EAngularConstraintMotion::ACM_Limited;
+		//ConstraintInstance.SetAngularSwing1Motion(EAngularConstraintMotion::ACM_Limited);
 		ConstraintInstance.SetAngularSwing2Motion(EAngularConstraintMotion::ACM_Limited);
 		ConstraintInstance.SetAngularTwistMotion(EAngularConstraintMotion::ACM_Limited);
 

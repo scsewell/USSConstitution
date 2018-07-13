@@ -3,15 +3,15 @@
 * 
 * Created by: TK-Master
 * Project name: OceanProject
-* Unreal Engine version: 4.8.3
+* Unreal Engine version: 4.18.3
 * Created on: 2015/03/29
 *
-* Last Edited on: 2015/03/29
-* Last Edited by: TK-Master
+* Last Edited on: 2018/03/15
+* Last Edited by: Felipe "Zoc" Silveira
 * 
 * -------------------------------------------------
 * For parts referencing UE4 code, the following copyright applies:
-* Copyright 1998-2015 Epic Games, Inc. All Rights Reserved.
+* Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 *
 * Feel free to use this software in any commercial/free game.
 * Selling this as a plugin/item, in whole or part, is not allowed.
@@ -20,36 +20,39 @@
 
 #pragma once
 
-#include "OceanPluginPrivatePCH.h"
-#include "OceanManager.h"
+#include "CoreMinimal.h"
+#include "GameFramework/MovementComponent.h"
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
+#include "OceanManager.h"
 #include "BuoyancyComponent.generated.h"
 
+
 /**
- * 
+ *	Buoyancy component
+ *	OceanManager is required in the level for this to work.
  */
 UCLASS(ClassGroup = Movement, meta = (BlueprintSpawnableComponent), HideCategories = (PlanarMovement, "Components|Movement|Planar", Velocity))
 class OCEANPLUGIN_API UBuoyancyComponent : public UMovementComponent
 {
 	GENERATED_UCLASS_BODY()
 
-	/* OceanManager used by the component, if unassign component will auto-detect */
+	/* OceanManager used by the component, if unassigned component will auto-detect */
 	UPROPERTY(EditAnywhere, AdvancedDisplay, BlueprintReadWrite, Category = "Buoyancy Settings")
 	AOceanManager* OceanManager;
 	
-	/* Density of mesh */
+	/* Density of mesh. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buoyancy Settings")
 	float MeshDensity;
 
-	/* Density of water */
+	/* Density of water. Typically you don't need to change this. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buoyancy Settings")
 	float FluidDensity;
 
-	/* Linear damping when object is in fluid */
+	/* Linear damping when object is in fluid. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buoyancy Settings")
 	float FluidLinearDamping;
 
-	/* Angular damping when object is in fluid */
+	/* Angular damping when object is in fluid. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buoyancy Settings")
 	float FluidAngularDamping;
 
@@ -62,11 +65,11 @@ class OCEANPLUGIN_API UBuoyancyComponent : public UMovementComponent
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buoyancy Settings")
 	float MaxUnderwaterVelocity;
 
-	/* Radius of the points */
+	/* Radius of the points. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buoyancy Settings")
 	float TestPointRadius;
 
-	/* Test point array. At least one point is required for buoyancy */
+	/* Test point array. At least one point is required for buoyancy. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buoyancy Settings")
 	TArray<FVector> TestPoints;
 
@@ -93,6 +96,10 @@ class OCEANPLUGIN_API UBuoyancyComponent : public UMovementComponent
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = "Buoyancy Settings")
 	FRotator StayUprightDesiredRotation;
 
+	/**
+	* Waves will push objects towards the wave direction set in the Ocean Manager.
+	* -STILL WIP-
+	*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, AdvancedDisplay, Category = "Buoyancy Settings")
 	bool EnableWaveForces;
 
@@ -116,4 +123,6 @@ private:
 	float _baseAngularDamping;
 	float _baseLinearDamping;
 
+	UWorld* World;
+	
 };

@@ -1,9 +1,8 @@
 {
     "FileVersion" : 3,
     "FriendlyName" : "Ocean Project Plugin",
-    "Version" : 1,
-    "VersionName": "1.0",
-    "EngineVersion" : "4.15",
+    "Version" : 12,
+    "VersionName": "1.2",
     "Description" : "Provides the code base classes for the ocean system.",
     "Category" : "Ocean",
     "CreatedBy" : "DotCam",
@@ -17,5 +16,13 @@
             "Name" : "OceanPlugin",
             "Type" : "Runtime"
         } 
-    ]
+    ],
+	
+	"Plugins":
+	[
+		{
+			"Name": "ApexDestruction",
+			"Enabled": true
+		}
+	]
 }

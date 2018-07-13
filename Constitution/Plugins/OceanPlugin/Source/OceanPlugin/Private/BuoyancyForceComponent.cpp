@@ -3,25 +3,31 @@
 * 
 * Created by: TK-Master
 * Project name: OceanProject
-* Unreal Engine version: 4.12.2
+* Unreal Engine version: 4.18.3
 * Created on: 2015/04/26
 *
-* Last Edited on: 2016/06/10
-* Last Edited by: DotCam
+* Last Edited on: 2018/03/15
+* Last Edited by: Felipe "Zoc" Silveira
 * 
 * -------------------------------------------------
 * For parts referencing UE4 code, the following copyright applies:
-* Copyright 1998-2015 Epic Games, Inc. All Rights Reserved.
+* Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 *
 * Feel free to use this software in any commercial/free game.
 * Selling this as a plugin/item, in whole or part, is not allowed.
 * See "OceanProject\License.md" for full licensing details.
 * =================================================*/
 
-#include "OceanPluginPrivatePCH.h"
 #include "BuoyancyForceComponent.h"
-#include "Runtime/Engine/Classes/PhysicsEngine/ConstraintInstance.h"
-
+#include "Classes/Engine/World.h"
+#include "Classes/PhysicsEngine/PhysicsConstraintComponent.h"
+#include "Components/PrimitiveComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "DrawDebugHelpers.h"
+#include "EngineUtils.h"
+#include "GameFramework/PhysicsVolume.h"
+#include "PhysicsEngine/ConstraintInstance.h"
+ 	
 UBuoyancyForceComponent::UBuoyancyForceComponent(const class FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer) 
 {
@@ -46,16 +52,9 @@ UBuoyancyForceComponent::UBuoyancyForceComponent(const class FObjectInitializer&
 	WaveForceMultiplier = 2.0f;
 }
 
-/*void UBuoyancyForceComponent::PostLoad()
-{
-	Super::PostLoad();
-}*/
-
 void UBuoyancyForceComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
-
-	//UE_LOG(LogTemp, Warning, TEXT("We're initializing..."));
 
 	//Store the world ref.
 	World = GetWorld();
@@ -180,7 +179,7 @@ void UBuoyancyForceComponent::TickComponent(float DeltaTime, enum ELevelTick Tic
 				if (isUnderwater)
 				{
 					BI->SetLinearVelocity(-BI->GetUnrealWorldVelocity() * (FluidLinearDamping / 10), true);
-					BI->SetAngularVelocity(-BI->GetUnrealWorldAngularVelocity() * (FluidAngularDamping / 10), true);
+					BI->SetAngularVelocityInRadians(-BI->GetUnrealWorldAngularVelocityInRadians() * FMath::DegreesToRadians(FluidAngularDamping / 10), true);
 
 					//Clamp the velocity to MaxUnderwaterVelocity
 					if (ClampMaxVelocity && BI->GetUnrealWorldVelocity().Size() > MaxUnderwaterVelocity)
@@ -238,7 +237,7 @@ void UBuoyancyForceComponent::TickComponent(float DeltaTime, enum ELevelTick Tic
 			*/
 			float BuoyancyForceZ = BasePrimComp->GetMass() / PointDensity * FluidDensity * -Gravity / TotalPoints * DepthMultiplier;
 
-			//Experimental velocity damping using VelocityAtPoint.
+			//Experimental velocity damping using GetUnrealWorldVelocityAtPoint!
 			FVector DampingForce = -GetUnrealVelocityAtPoint(BasePrimComp, worldTestPoint) * VelocityDamper * BasePrimComp->GetMass() * DepthMultiplier;
 
 			//Experimental xy wave force
