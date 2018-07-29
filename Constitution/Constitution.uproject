@@ -7,13 +7,16 @@
 		{
 			"Name": "Constitution",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
 		}
 	],
 	"Plugins": [
 		{
 			"Name": "SimplygonUE4",
-			"Enabled": true
+			"Enabled": false
 		}
 	],
 	"TargetPlatforms": [
