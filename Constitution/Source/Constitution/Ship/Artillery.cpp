@@ -12,6 +12,9 @@ void AArtillery::BeginPlay()
 {
 	Super::BeginPlay();
     
+    // get mesh component
+    m_mesh = FindComponentByClass<USkinnedMeshComponent>();
+
     // get particle components
     TArray<UParticleSystemComponent*> particleComponents;
     GetComponents(particleComponents);
@@ -25,9 +28,14 @@ void AArtillery::BeginPlay()
     GetComponents(audioComponents);
     for (auto& audio : audioComponents)
     {
-        if (audio->GetName().Contains("Fire"))
+        FString name = audio->GetName();
+        if (name.Contains("Fire"))
         {
-            m_fireSound = audio;
+            m_fireSounds.Add(audio);
+        }
+        if (name.Contains("Runout"))
+        {
+            m_runoutSounds.Add(audio);
         }
     }
 }
@@ -42,13 +50,20 @@ void AArtillery::Tick(float DeltaTime)
 
         if (timeSinceFire >= 0 && !m_firedShot)
         {
-            if (m_fireParticles != nullptr)
+            if (Projectile && m_mesh)
+            {
+                FTransform transform = m_mesh->GetSocketTransform("Muzzle");
+                FActorSpawnParameters SpawnInfo;
+                SpawnInfo.Owner = this;
+                AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(Projectile, transform, SpawnInfo);
+            }
+            if (m_fireParticles)
             {
                 m_fireParticles->ActivateSystem();
             }
-            if (m_fireSound != nullptr)
+            for (auto& audio : m_fireSounds)
             {
-                m_fireSound->Play();
+                audio->Play();
             }
             m_firedShot = true;
         }
@@ -65,6 +80,21 @@ void AArtillery::Tick(float DeltaTime)
                 m_firing = false;
             }
             m_recoil = FMath::Clamp(0.5f * timeSinceRunout / m_runoutDuration, 0.0f, 0.5f) + 0.5f;
+        }
+
+        for (auto& audio : m_runoutSounds)
+        {
+            if (0.5f < m_recoil && m_recoil < 1.0f)
+            {
+                if (!audio->IsPlaying())
+                {
+                    audio->FadeIn(0.1f);
+                }
+            }
+            else if (audio->IsPlaying())
+            {
+                audio->FadeOut(0.1f, 0.0f);
+            }
         }
 
         SetRecoil(m_recoil);

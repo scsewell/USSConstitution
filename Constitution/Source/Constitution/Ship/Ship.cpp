@@ -36,6 +36,11 @@ void AShip::BeginPlay()
 void AShip::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+    if (AutoFire)
+    {
+        FireCannons();
+    }
 }
 
 void AShip::FireCannons()
@@ -45,6 +50,7 @@ void AShip::FireCannons()
 
 void AShip::FireCannons(TArray<Artillery>* artillery)
 {
+    // get the position of the first fireable cannon
     float rollStartPos = 0;
     for (auto& a : (*artillery))
     {
@@ -57,6 +63,7 @@ void AShip::FireCannons(TArray<Artillery>* artillery)
         }
     }
 
+    // fire all fireable cannons, delayed by distance relative to the first fireable cannon
     for (auto& a : (*artillery))
     {
         if (a.artillery->CanFire())
@@ -64,5 +71,10 @@ void AShip::FireCannons(TArray<Artillery>* artillery)
             a.artillery->Fire((rollStartPos - a.position.Y) / (100 * RollingFireSpeed));
         }
     }
+}
+
+void AShip::ToggleAutoFire()
+{
+    AutoFire = !AutoFire;
 }
 

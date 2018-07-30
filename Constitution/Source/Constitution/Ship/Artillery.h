@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "Projectile.h"
 #include "Artillery.generated.h"
 
 UCLASS()
@@ -15,8 +16,10 @@ public:
 	AArtillery();
 
 private:
+    USkinnedMeshComponent* m_mesh = nullptr;
     UParticleSystemComponent* m_fireParticles = nullptr;
-    UAudioComponent* m_fireSound = nullptr;
+    TArray<UAudioComponent*> m_fireSounds;
+    TArray<UAudioComponent*> m_runoutSounds;
 
     bool m_firing = false;
     bool m_firedShot = false;
@@ -26,6 +29,9 @@ private:
     float m_recoil = 0;
 
 protected:
+    UPROPERTY(EditAnywhere, Category = "Firing")
+    TSubclassOf<AProjectile> Projectile = nullptr;
+
     UPROPERTY(EditAnywhere, Category = "Firing", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
     float FireTimeVariance = 0.5;
 

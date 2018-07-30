@@ -30,6 +30,9 @@ private:
     void FireCannons(TArray<Artillery>* artillery);
 
 protected:
+    UPROPERTY(EditAnywhere, Category = "Firing")
+    bool AutoFire = false;
+
     UPROPERTY(EditAnywhere, Category = "Firing", meta = (ClampMin = "0.1", ClampMax = "50.0", UIMin = "0.1", UIMax = "50.0"))
     float RollingFireSpeed = 5.0;
 
@@ -37,4 +40,7 @@ protected:
 
 public:	
 	virtual void Tick(float DeltaTime) override;
+
+    UFUNCTION(BlueprintCallable)
+    void ToggleAutoFire();
 };
