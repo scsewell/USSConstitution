@@ -1,6 +1,10 @@
-Carronade
+bell sound
+wind sound
+cannonball splash
+sound mix different when below deck
+
+boats
 Masts base/tie-offs
-raised bow rail section
 Finish cabins (make laterns)
 
 
