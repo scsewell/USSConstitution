@@ -17,6 +17,10 @@
 		{
 			"Name": "SimplygonUE4",
 			"Enabled": false
+		},
+		{
+			"Name": "SoundUtilities",
+			"Enabled": true
 		}
 	],
 	"TargetPlatforms": [
